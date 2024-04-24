@@ -41,12 +41,12 @@ def main():
         
         # Write residents' preferences
         for index, prefs in enumerate(resident_prefs):
-            row = [f"{resident_prefix}{index + 1}:"] + [f"{hospital_prefix}{h + 1}" for h in prefs]
+            row = [f"{resident_prefix}{index + 1}"] + [f"{hospital_prefix}{h + 1}" for h in prefs]
             writer.writerow(row)
         
         # Write hospitals' preferences and posts
         for index, (positions, prefs) in enumerate(hospital_prefs):
-            row = [f"{hospital_prefix}{index + 1}:{positions}:"] + [f"{resident_prefix}{r + 1}" for r in prefs]
+            row = [f"{hospital_prefix}{index + 1}:{positions}"] + [f"{resident_prefix}{r + 1}" for r in prefs]
             writer.writerow(row)
 
     print("Dataset generation complete.")

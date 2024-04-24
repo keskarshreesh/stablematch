@@ -16,8 +16,7 @@ class StableMatch:
         with open(preferences_csv, 'r') as file:
             reader = csv.reader(file)
             first_row = next(reader)
-            num_residents, num_hospitals = map(int, first_row[0].split())
-            
+            num_residents, num_hospitals = map(int, first_row)
             # Initialize residents and hospitals if not already set (optional)
             self.num_residents = num_residents
             self.num_hospitals = num_hospitals
@@ -27,15 +26,19 @@ class StableMatch:
             # Read residents' preferences
             for _ in range(num_residents):
                 row = next(reader)
-                resident_id, hospitals = row[0].split(':')
-                self.residents[int(resident_id)] = [int(h) for h in hospitals.split(',')]
+                print(row)
+                resident_id = int(row[0].split('-')[1])
+                hospitals = row[1:]
+                self.residents[int(resident_id)] = [int(h.split('-')[1]) for h in hospitals]
 
             # Read hospitals' preferences and posts
             for _ in range(num_hospitals):
                 row = next(reader)
-                hospital_id, posts, prefs = row[0].split(':')
+                hospital, posts = row[0].split(':')
+                hospital_id = hospital.split('-')[1]
+                prefs = row[1:]
                 self.hospitals[int(hospital_id)]['posts'] = int(posts)
-                self.hospitals[int(hospital_id)]['prefs'] = [int(r) for r in prefs.split(',')]
+                self.hospitals[int(hospital_id)]['prefs'] = [int(r.split('-')[1]) for r in prefs]
 
     def gale_shapley_residents(self):
         # Same as before
@@ -68,16 +71,16 @@ class StableMatch:
                 print(f"Hospital {h} is matched to Resident {r}")
 
 # Example usage
-try:
-    match_system = StableMatch(0, 0)  # Initialize with zero and let CSV dictate sizes
-    match_system.read_preferences_from_csv('preferences.csv')
-    match_system.gale_shapley_residents()
-    print("After Residents' Proposals:")
-    match_system.display_matches()
-    match_system.gale_shapley_hospitals()
-    print("After Hospitals' Proposals:")
-    match_system.display_matches()
-except TableOverflowError as e:
-    print(e)
-except Exception as e:
-    print("An error occurred:", e)
+# try:
+match_system = StableMatch(0, 0)  # Initialize with zero and let CSV dictate sizes
+match_system.read_preferences_from_csv('../data/preferences.csv')
+match_system.gale_shapley_residents()
+print("After Residents' Proposals:")
+match_system.display_matches()
+match_system.gale_shapley_hospitals()
+print("After Hospitals' Proposals:")
+match_system.display_matches()
+# except TableOverflowError as e:
+    # print(e)
+# except Exception as e:
+    # print("An error occurred:", e)
