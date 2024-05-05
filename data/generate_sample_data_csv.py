@@ -1,19 +1,29 @@
 #!/usr/bin/env python
 
+import os
 import random
 import csv
 
-def main():
+def generate_csv(
+    total_residents,
+    total_hospitals,
+    resident_rol_len,
+    resident_rol_sd,
+    hospital_num_positions,
+    hospital_num_positions_sd,
+    file_num,
+):
     # Configuration values
-    total_residents = 100
-    total_hospitals = 100
-    resident_rol_len = 10  # Average length of resident preference list
-    resident_rol_sd = 3  # Standard deviation of resident preference list length
-    hospital_num_positions = 6  # Average number of positions per hospital
-    hospital_num_positions_sd = 2  # Standard deviation of positions per hospital
+    # total_residents = 100
+    # total_hospitals = 30
+    # resident_rol_len = 5  # Average length of resident preference list
+    # resident_rol_sd = 3  # Standard deviation of resident preference list length
+    # hospital_num_positions = 6  # Average number of positions per hospital
+    # hospital_num_positions_sd = 2  # Standard deviation of positions per hospital
     hospital_prefix = 'Hospital-'
     resident_prefix = 'Resident-'
-    output_file = 'preferences.csv'
+    dataset_root_path = f"./exp_1/r_{total_residents}_h_{total_hospitals}"
+    output_file = f"{dataset_root_path}/preferences_{file_num}.csv"
 
     # Initialize preference lists
     resident_prefs = [[] for _ in range(total_residents)]
@@ -34,6 +44,9 @@ def main():
         positions = int(random.normalvariate(hospital_num_positions, hospital_num_positions_sd))
         hospital_prefs[this_hospital] = (positions, residents_applied)
 
+    if not os.path.exists(dataset_root_path):
+        os.mkdir(dataset_root_path)
+
     # Write output to CSV
     with open(output_file, mode='w', newline='') as file:
         writer = csv.writer(file)
@@ -52,4 +65,21 @@ def main():
     print("Dataset generation complete.")
 
 if __name__ == "__main__":
-    main()
+    total_residents = 100
+    resident_rol_len = 5
+    resident_rol_sd = 3
+    total_hospitals_list = [10,20,30,40,50,60,70,80,90,100]
+    hospital_num_positions_list = [10,6,5,5,4,4,4,3,3,3]
+    hospital_num_positions_sd_list = [2,2,2,2,1,1,1,1,1,1]
+
+    for index,total_hospitals in enumerate(total_hospitals_list):
+        for file_num in range(1,6):
+            generate_csv(
+                total_residents,
+                total_hospitals,
+                resident_rol_len,
+                resident_rol_sd,
+                hospital_num_positions_list[index],
+                hospital_num_positions_sd_list[index],
+                file_num
+            )
