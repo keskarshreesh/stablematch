@@ -107,27 +107,84 @@ class StableMatch:
         # Calculate the average percentage across all hospitals
         return sum(hospital_match_quality.values()) / len(hospital_match_quality)
 
-    def display_match_summary(self):
+    def get_match_summary(self):
         # Calculate and display the summary of the matching process
-        num_unmatched_residents = self.percentage_unmatched_residents()
-        num_underfilled_hospitals = self.percentage_underfilled_hospitals()
-        top_k_resident_matches = self.percentage_top_k_preferences_residents(3)
-        top_k_hospital_matches = self.average_percentage_top_k_prefs_per_hospital(3)
-        print(f"Number of unmatched residents: {num_unmatched_residents}")
-        print(f"Number of underfilled hospitals: {num_underfilled_hospitals}")
-        print(f"Top k matches for residents: {top_k_resident_matches}")
-        print(f"Top k matches for hospitals: {top_k_hospital_matches}")
+        k_vals = [1,3,5,7,9]
+        summary_dict = {
+            "percentage_unmatched_residents": self.percentage_unmatched_residents(),
+            "percentage_underfilled_hospitals": self.percentage_underfilled_hospitals(),
+        }
+        
+        for k in k_vals:
+            summary_dict[f"top_{k}_resident_matches"] = self.percentage_top_k_preferences_residents(k)
+            summary_dict[f"top_{k}_hospital_matches"] = self.average_percentage_top_k_prefs_per_hospital(k)
+        
+        return summary_dict
 
-match_system = StableMatch(0, 0)
-match_system.read_preferences_from_csv('../data/preferences.csv')
-match_system.gale_shapley_residents()
-print("After Residents' Proposals:")
-match_system.display_resident_optimal_matches()
-match_system.display_match_summary()
+def run_exp_1():
+    dataset_root = "../data/exp_1"
+    num_residents = 500
+    num_hospitals = 140
+    summary_dict_resident_side_match = {
+        "percentage_unmatched_residents": [],
+        "percentage_underfilled_hospitals": [],
+        "top_1_resident_matches": [],
+        "top_1_hospital_matches": [],
+        "top_3_resident_matches": [],
+        "top_3_hospital_matches": [],
+        "top_5_resident_matches": [],
+        "top_5_hospital_matches": [],
+        "top_7_resident_matches": [],
+        "top_7_hospital_matches": [],
+        "top_9_resident_matches": [],
+        "top_9_hospital_matches": [],
+    }
+    summary_dict_hospital_side_match = {
+        "percentage_unmatched_residents": [],
+        "percentage_underfilled_hospitals": [],
+        "top_1_resident_matches": [],
+        "top_1_hospital_matches": [],
+        "top_3_resident_matches": [],
+        "top_3_hospital_matches": [],
+        "top_5_resident_matches": [],
+        "top_5_hospital_matches": [],
+        "top_7_resident_matches": [],
+        "top_7_hospital_matches": [],
+        "top_9_resident_matches": [],
+        "top_9_hospital_matches": [],
+    }
+    for file_num in range(1,6):
+        match_system = StableMatch(0, 0)
+        match_system.read_preferences_from_csv(f"{dataset_root}/r_{num_residents}_h_{num_hospitals}/preferences_{file_num}.csv")
+        match_system.gale_shapley_residents()
+        # match_system.display_resident_optimal_matches()
+        current_file_summary = match_system.get_match_summary()
+        for metric in current_file_summary:
+            summary_dict_resident_side_match[metric].append(current_file_summary[metric])
 
-match_system = StableMatch(0, 0)
-match_system.read_preferences_from_csv('../data/preferences.csv')
-match_system.gale_shapley_hospitals()
-print("After Hospitals' Proposals:")
-match_system.display_hospital_optimal_matches()
-match_system.display_match_summary()
+        match_system = StableMatch(0, 0)
+        match_system.read_preferences_from_csv(f"{dataset_root}/r_{num_residents}_h_{num_hospitals}/preferences_{file_num}.csv")
+        match_system.gale_shapley_hospitals()
+        # match_system.display_hospital_optimal_matches()
+        current_file_summary = match_system.get_match_summary()
+        for metric in current_file_summary:
+            summary_dict_hospital_side_match[metric].append(current_file_summary[metric])
+    
+    print("After Residents' Proposals:")
+    for metric in summary_dict_resident_side_match:
+        metric_avg = 0
+        for metric_val in summary_dict_resident_side_match[metric]:
+            metric_avg += metric_val
+        metric_avg /= len(summary_dict_resident_side_match[metric])
+        print(f"{metric}: {metric_avg}")
+    
+    print("After Hospitals' Proposals:")
+    for metric in summary_dict_hospital_side_match:
+        metric_avg = 0
+        for metric_val in summary_dict_hospital_side_match[metric]:
+            metric_avg += metric_val
+        metric_avg /= len(summary_dict_hospital_side_match[metric])
+        print(f"{metric}: {metric_avg}")
+
+if __name__ == "__main__":
+    run_exp_1()

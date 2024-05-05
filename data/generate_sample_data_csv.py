@@ -65,10 +65,10 @@ def generate_csv(
     print("Dataset generation complete.")
 
 if __name__ == "__main__":
-    total_residents = 100
+    total_residents = 500
     resident_rol_len = 5
     resident_rol_sd = 3
-    total_hospitals_list = [10,20,30,40,50,60,70,80,90,100]
+    total_hospitals_list = [50,60,70,80,90,100,110,120,130,140]
     hospital_num_positions_list = [10,6,5,5,4,4,4,3,3,3]
     hospital_num_positions_sd_list = [2,2,2,2,1,1,1,1,1,1]
 
